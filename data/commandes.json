@@ -1,0 +1,21 @@
+[
+    {
+        "ref": "MTX-49E1B",
+        "couleur": "Noir",
+        "couleur_id": "noir",
+        "prix": 3500,
+        "palier": 1,
+        "place": null,
+        "statut": "annulee",
+        "nom": "",
+        "tel": "",
+        "email": "",
+        "lieu": "",
+        "note": "",
+        "complete": false,
+        "transac": null,
+        "mail_envoye": false,
+        "cree_le": "2026-09-26 21:17:38",
+        "paye_le": null
+    }
+]

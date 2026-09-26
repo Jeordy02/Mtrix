@@ -1,0 +1,621 @@
+/* M'trix — accueil */
+
+:root {
+  --ink:    #0C0C0D;
+  --paper:  #FFFFFF;
+  --smoke:  #F1F0EC;
+  --grey:   #72747A;
+  --line:   #E2E1DC;
+  --orange: #E8822B;
+  --gut:    clamp(18px, 5vw, 56px);
+  --intro:  2600ms;   /* durée de l'entrée — une seule valeur à changer */
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Archivo', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+body.intro-on { overflow: hidden; }
+img { max-width: 100%; display: block; }
+a { color: inherit; }
+
+/* ==========================================================
+   Entrée : le nom se décode, puis l'écran s'ouvre en deux
+   ========================================================== */
+.intro { position: fixed; inset: 0; z-index: 200; }
+.intro__panneau {
+  position: absolute; left: 0; right: 0; height: 50.2%;
+  background: #000;
+  transition: transform .85s cubic-bezier(.76,0,.24,1);
+}
+.intro__panneau--h { top: 0; }
+.intro__panneau--b { bottom: 0; }
+.intro.is-gone .intro__panneau--h { transform: translateY(-100%); }
+.intro.is-gone .intro__panneau--b { transform: translateY(100%); }
+
+.intro__coeur {
+  position: absolute; inset: 0; z-index: 2;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px;
+  transition: opacity .3s ease;
+}
+.intro.is-gone .intro__coeur { opacity: 0; }
+
+.intro__mot {
+  margin: 0;
+  font-family: 'Archivo Black', 'Archivo', sans-serif;
+  font-size: clamp(38px, 13vw, 132px);
+  letter-spacing: -.01em; line-height: 1;
+  color: #F6F5F2; white-space: nowrap;
+  display: flex;
+}
+.intro__mot span {
+  display: inline-block; min-width: .62em; text-align: center;
+}
+.intro__mot .apos { color: var(--orange); min-width: .3em; transform: skewX(-10deg); }
+.intro__mot.is-glitch { animation: secousse .34s steps(2, end) 2; }
+@keyframes secousse {
+  0%   { transform: translate(0,0);     text-shadow: none; }
+  25%  { transform: translate(-3px,1px); text-shadow: 3px 0 var(--orange), -3px 0 #3BE0FF; }
+  50%  { transform: translate(3px,-1px); text-shadow: -3px 0 var(--orange), 3px 0 #3BE0FF; }
+  75%  { transform: translate(-2px,0);  text-shadow: 2px 0 var(--orange), -2px 0 #3BE0FF; }
+  100% { transform: translate(0,0);     text-shadow: none; }
+}
+.intro__trait {
+  width: min(46vw, 320px); height: 2px; background: var(--orange);
+  transform: scaleX(0); transform-origin: center;
+  transition: transform .7s cubic-bezier(.16,1,.3,1);
+}
+.intro__trait.is-on { transform: scaleX(1); }
+
+.intro__skip {
+  position: absolute; z-index: 3;
+  right: clamp(14px, 4vw, 34px); bottom: clamp(14px, 4vw, 34px);
+  background: none; border: 1px solid rgba(255,255,255,.28); border-radius: 2px;
+  color: rgba(255,255,255,.7); cursor: pointer;
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 11px; font-weight: 600; letter-spacing: .18em; text-transform: uppercase;
+  padding: 9px 16px; transition: color .2s, border-color .2s, opacity .3s;
+}
+.intro__skip:hover { color: #fff; border-color: rgba(255,255,255,.7); }
+.intro.is-gone .intro__skip { opacity: 0; }
+
+/* ==========================================================
+   Arrivée du contenu
+   ========================================================== */
+.anim { opacity: 0; transform: translateY(16px); }
+body:not(.intro-on) .anim {
+  animation: montee .85s cubic-bezier(.16,1,.3,1) both;
+  animation-delay: calc(var(--i, 0) * 90ms);
+}
+@keyframes montee { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+.anim--1 { --i: 0; } .anim--2 { --i: 1; } .anim--3 { --i: 2; } .anim--4 { --i: 3; }
+.anim--5 { --i: 4; } .anim--6 { --i: 5; } .anim--7 { --i: 6; }
+
+.ln { display: block; overflow: hidden; }
+.ln > span { display: block; }
+body:not(.intro-on) .ln > span {
+  animation: ligne 1s cubic-bezier(.16,1,.3,1) both;
+  animation-delay: calc(var(--i, 0) * 90ms + 60ms);
+}
+@keyframes ligne { from { transform: translateY(105%); } to { transform: none; } }
+
+/* ---------- Barre ---------- */
+.bar {
+  position: sticky; top: 0; z-index: 40;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; padding: 10px var(--gut);
+  background: var(--ink);
+}
+.bar__logo {
+  display: block; width: clamp(136px, 24vw, 184px); height: 42px;
+  overflow: hidden;   /* le logo est un carre avec du noir autour : on recadre sur le texte */
+}
+.bar__logo img {
+  width: 100%; height: 100%; object-fit: cover; object-position: center;
+  transition: transform .35s ease;
+}
+.bar__logo:hover img { transform: scale(1.06); }
+.bar__nav { display: flex; gap: clamp(14px, 3vw, 28px); }
+.bar__nav a {
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 12.5px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase;
+  color: #F4F3F0; text-decoration: none; padding: 4px 0;
+  border-bottom: 1px solid transparent; transition: border-color .25s, color .25s;
+}
+.bar__nav a:hover, .bar__nav a:focus-visible { color: var(--orange); border-bottom-color: var(--orange); }
+
+/* ---------- Hero ---------- */
+.hero { padding: clamp(40px, 8vw, 88px) var(--gut) clamp(28px, 5vw, 48px); text-align: center; }
+.hero__title {
+  font-family: 'Archivo Black', 'Archivo', sans-serif;
+  text-transform: uppercase;
+  font-size: clamp(44px, 13vw, 132px); line-height: .92; letter-spacing: -0.035em;
+  margin: 0 auto 18px; max-width: 14ch; text-wrap: balance;
+}
+.hero__sub {
+  max-width: 46ch; margin: 0 auto; color: var(--grey);
+  font-size: clamp(14.5px, 1.6vw, 17px);
+}
+
+.stage {
+  position: relative; width: min(760px, 100%); margin: clamp(10px, 3vw, 26px) auto 0;
+  aspect-ratio: 4 / 3;
+}
+.stage__glow {
+  position: absolute; left: 50%; top: 56%; transform: translate(-50%, -50%);
+  width: 72%; height: 58%; border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(232,130,43,.22), transparent 72%);
+  filter: blur(14px);
+  animation: halo 6s ease-in-out infinite;
+}
+@keyframes halo {
+  0%, 100% { opacity: .75; transform: translate(-50%, -50%) scale(1); }
+  50%      { opacity: 1;   transform: translate(-50%, -50%) scale(1.09); }
+}
+.stage__img {
+  position: absolute; inset: 0; margin: auto;
+  max-height: 100%; width: 100%; object-fit: contain;
+  mix-blend-mode: multiply;   /* efface le fond blanc de la photo */
+  opacity: 0; transform: scale(.985);
+  transition: opacity .5s ease, transform .5s ease;
+}
+.stage__img.is-on { opacity: 1; transform: none; animation: flotte 7s ease-in-out infinite; }
+@keyframes flotte {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50%      { transform: translateY(-11px) rotate(-.6deg); }
+}
+
+.picker { display: flex; justify-content: center; gap: 12px; margin-top: 4px; }
+.picker__dot {
+  width: 40px; height: 40px; padding: 4px; cursor: pointer;
+  background: none; border: 1.5px solid transparent; border-radius: 50%;
+  transition: border-color .25s, transform .25s;
+}
+body:not(.intro-on) .picker__dot {
+  animation: pastille .6s cubic-bezier(.16,1,.3,1) both;
+  animation-delay: calc(600ms + var(--d, 0ms));
+}
+@keyframes pastille { from { opacity: 0; transform: scale(.4); } to { opacity: 1; transform: none; } }
+.picker__dot span { display: block; width: 100%; height: 100%; border-radius: 50%; border: 1px solid var(--line); }
+.picker__dot:hover { transform: translateY(-3px) scale(1.06); }
+.picker__dot.is-on { border-color: var(--ink); }
+.picker__dot:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
+.picker__nom {
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 12.5px; font-weight: 600; letter-spacing: .2em; text-transform: uppercase;
+  text-align: center; color: var(--grey); margin: 12px 0 0; min-height: 1.2em;
+}
+
+/* ---------- Bandeau défilant ---------- */
+.ticker { overflow: hidden; background: var(--ink); color: #F4F3F0; padding: 13px 0; margin-top: clamp(34px, 6vw, 62px); }
+.ticker__track { display: flex; align-items: center; gap: 22px; width: max-content; animation: defile 26s linear infinite; }
+.ticker:hover .ticker__track { animation-play-state: paused; }
+@keyframes defile { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.ticker span {
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 12.5px; font-weight: 600; letter-spacing: .24em; text-transform: uppercase; white-space: nowrap;
+}
+.ticker i { color: var(--orange); font-style: normal; font-size: 10px; }
+
+/* ---------- Bande des trois points ---------- */
+.strip { display: grid; gap: 1px; grid-template-columns: 1fr; background: var(--line); border-bottom: 1px solid var(--line); }
+@media (min-width: 720px) { .strip { grid-template-columns: repeat(3, 1fr); } }
+.strip__item {
+  background: var(--smoke); padding: clamp(20px, 3vw, 30px) var(--gut);
+  display: flex; align-items: baseline; gap: 14px; transition: background .35s ease;
+}
+.strip__item:hover { background: var(--paper); }
+.strip__item span { font-family: 'Chakra Petch', sans-serif; font-weight: 600; font-size: 12px; letter-spacing: .12em; color: var(--orange); }
+.strip__item p { margin: 0; font-size: 15px; }
+
+/* ==========================================================
+   Les cinq — le nom en géant, la monture posée par-dessus
+   ========================================================== */
+.cinq { padding: clamp(52px, 9vw, 110px) var(--gut) clamp(20px, 4vw, 50px); overflow: hidden; }
+.cinq__titre {
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 12.5px; font-weight: 600; letter-spacing: .32em; text-transform: uppercase;
+  color: var(--grey); margin: 0 0 clamp(6px, 2vw, 18px);
+}
+
+.teinte {
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+  min-height: clamp(210px, 33vw, 400px);
+}
+.teinte__nom {
+  position: absolute; inset: 0; margin: 0; z-index: 1;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Archivo Black', 'Archivo', sans-serif;
+  font-size: clamp(52px, 17vw, 214px); line-height: .8; letter-spacing: -.035em;
+  text-transform: uppercase; white-space: nowrap;
+  color: transparent;
+  -webkit-text-stroke: 1.6px var(--ink);
+  transition: -webkit-text-stroke-color .5s ease, color .5s ease;
+}
+.teinte__img {
+  position: relative; z-index: 2;
+  width: clamp(230px, 44vw, 540px); height: auto;
+  mix-blend-mode: multiply;          /* le fond blanc disparaît : le mot passe derrière la monture */
+  transition: transform .6s cubic-bezier(.16,1,.3,1);
+}
+.teinte--inv .teinte__img { transform: translateX(12%); }
+.teinte:not(.teinte--inv) .teinte__img { transform: translateX(-12%); }
+.teinte:hover .teinte__img { transform: translateX(0) scale(1.05); }
+.teinte:hover .teinte__nom { color: var(--orange); -webkit-text-stroke-color: var(--orange); }
+.teinte__num {
+  position: absolute; top: 4%; z-index: 3;
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 12px; font-weight: 600; letter-spacing: .2em; color: var(--grey);
+}
+.teinte:not(.teinte--inv) .teinte__num { right: 2%; }
+.teinte--inv .teinte__num { left: 2%; }
+
+/* Arrivée au défilement */
+.teinte__img, .teinte__nom { will-change: transform, opacity; }
+.teinte.reveal .teinte__nom { opacity: 0; transition: opacity .8s ease; }
+.teinte.reveal.is-in .teinte__nom { opacity: 1; }
+
+/* ---------- Appel ---------- */
+.cta { background: var(--ink); color: #F4F3F0; padding: clamp(52px, 9vw, 104px) var(--gut); text-align: center; }
+.cta__eyebrow {
+  margin: 0 0 8px;
+  font-family: 'Chakra Petch', sans-serif; font-size: 12px; font-weight: 600;
+  letter-spacing: .26em; text-transform: uppercase; color: var(--orange);
+}
+.cta h2 {
+  font-family: 'Archivo Black', 'Archivo', sans-serif;
+  font-size: clamp(30px, 7vw, 74px); letter-spacing: .02em; margin: 0 0 10px;
+}
+.cta p { margin: 0 0 26px; color: #A8A9AC; }
+.cta__btn {
+  display: inline-block; text-decoration: none; position: relative; overflow: hidden;
+  font-family: 'Chakra Petch', sans-serif; font-weight: 600;
+  font-size: 13px; letter-spacing: .16em; text-transform: uppercase;
+  padding: 15px 30px; border-radius: 2px;
+  background: var(--orange); color: #14100C;
+  transition: transform .2s ease, filter .2s ease;
+}
+.cta__btn:hover { transform: translateY(-2px); filter: brightness(1.07); }
+.cta__btn::after {
+  content: ''; position: absolute; top: 0; left: -120%; width: 55%; height: 100%;
+  background: linear-gradient(100deg, transparent, rgba(255,255,255,.55), transparent);
+  animation: reflet 4.5s ease-in-out infinite;
+}
+@keyframes reflet { 0%, 55% { left: -120%; } 85%, 100% { left: 160%; } }
+
+/* ---------- Pied ---------- */
+.foot {
+  padding: clamp(40px, 6vw, 64px) var(--gut) 0;
+  font-family: 'Chakra Petch', sans-serif;
+  color: var(--grey); border-top: 1px solid var(--line);
+}
+.foot a { text-decoration: none; transition: color .25s ease; }
+.foot a:hover { color: var(--orange); }
+
+/* Page utilitaire (commander.php) : juste une ligne simple, pas de colonnes. */
+.foot:has(> span:first-child) {
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap;
+  gap: 12px; padding: 22px var(--gut);
+  font-size: 11.5px; font-weight: 600; letter-spacing: .18em; text-transform: uppercase;
+}
+
+/* Accueil : pied de page complet, 3 blocs. */
+.foot__haut {
+  display: grid; grid-template-columns: 1fr; gap: 34px;
+  padding-bottom: clamp(30px, 5vw, 46px);
+}
+@media (min-width: 640px) { .foot__haut { grid-template-columns: 1.4fr 1fr 1fr; gap: 24px; } }
+
+.foot__marque { display: flex; flex-direction: column; gap: 12px; align-items: flex-start; }
+.foot__logo { width: 132px; height: 30px; object-fit: cover; object-position: center; }
+.foot__marque p { margin: 0; font-family: 'Archivo', sans-serif; font-size: 13px; letter-spacing: 0; text-transform: none; color: var(--grey); line-height: 1.6; }
+
+.foot__col { display: flex; flex-direction: column; gap: 11px; align-items: flex-start; }
+.foot__titre {
+  margin: 0 0 3px; font-size: 10.5px; letter-spacing: .2em; color: #B9B7AF;
+}
+.foot__col a { font-size: 12.5px; letter-spacing: .1em; color: var(--ink); }
+.foot__col a:hover { color: var(--orange); }
+
+.foot__bas {
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap;
+  gap: 10px; padding: 18px 0; border-top: 1px solid var(--line);
+  font-size: 11px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase;
+}
+
+/* ---------- Apparition au défilement ---------- */
+.reveal { opacity: 0; transform: translateY(20px); transition: opacity .75s ease, transform .75s cubic-bezier(.16,1,.3,1); }
+.reveal.is-in { opacity: 1; transform: none; }
+
+/* ---------- Mouvement réduit ---------- */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .intro { display: none; }
+  .anim, .ln > span, .picker__dot { animation: none !important; opacity: 1 !important; transform: none !important; }
+  .stage__glow, .stage__img.is-on, .ticker__track, .cta__btn::after { animation: none !important; }
+  .reveal { opacity: 1; transform: none; transition: none; }
+  .teinte__img, .teinte__nom, .card img, .cta__btn, .picker__dot, .bar__logo img { transition: none; }
+}
+
+/* ---------- Portée : la monture sur un visage ---------- */
+.porte {
+  display: grid; grid-template-columns: 1fr; align-items: center;
+  gap: clamp(18px, 4vw, 48px);
+  background: #E9E9E7;
+  padding: clamp(30px, 6vw, 70px) var(--gut);
+}
+@media (min-width: 820px) { .porte { grid-template-columns: 1fr 1fr; } }
+.porte__img {
+  width: 100%; max-width: 520px; justify-self: center;
+  border-radius: 2px;
+  transition: transform .8s cubic-bezier(.16,1,.3,1);
+}
+.porte:hover .porte__img { transform: scale(1.03); }
+.porte__txt h2 {
+  font-family: 'Archivo Black', 'Archivo', sans-serif;
+  font-size: clamp(30px, 6vw, 62px); letter-spacing: -.03em;
+  text-transform: uppercase; margin: 0 0 12px;
+}
+.porte__txt p { margin: 0; max-width: 34ch; color: #5B5D62; font-size: clamp(14.5px, 1.6vw, 17px); }
+
+/* ---------- AURA SALADE : noir, avec un reflet qui balaie les lettres ---------- */
+.hero { position: relative; isolation: isolate; }
+}
+
+/* ---------- M’TRIX seme en biais dans le fond blanc ---------- */
+.cinq { position: relative; overflow: hidden; }
+.fond {
+  position: absolute; inset: 0; z-index: 0;
+  overflow: hidden; pointer-events: none; user-select: none;
+}
+.fond__grille {
+  position: absolute; top: 50%; left: 50%;
+  width: 190vmax; height: 190vmax;
+  transform: translate(-50%, -50%) rotate(-22deg);
+  display: flex; flex-wrap: wrap; align-content: center; justify-content: center;
+  gap: clamp(26px, 4vw, 58px) clamp(34px, 5vw, 76px);
+}
+.fond__grille span {
+  font-family: 'Archivo Black', 'Archivo', sans-serif;
+  font-size: clamp(11px, 1.15vw, 15px);
+  letter-spacing: .12em;
+  color: rgba(12,12,13,.055);
+  white-space: nowrap;
+}
+/* les coloris passent devant le semis */
+.cinq__titre, .teinte { position: relative; z-index: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hero__title { animation: none !important; }
+}
+
+/* ---------- Portée : l'image se recompose en tranches, en cascade ---------- */
+.defil { padding: clamp(48px, 8vw, 100px) var(--gut); }
+.defil__tete {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 16px; width: min(560px, 100%); margin: 0 auto clamp(14px, 2.5vw, 24px);
+}
+.defil__titre {
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 12.5px; font-weight: 600; letter-spacing: .32em; text-transform: uppercase;
+  color: var(--orange); margin: 0;
+}
+.defil__compteur {
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 12.5px; font-weight: 600; letter-spacing: .14em;
+  color: var(--grey); margin: 0; font-variant-numeric: tabular-nums;
+}
+.defil__compteur i { font-style: normal; opacity: .45; margin: 0 2px; }
+.defil__compteur span { color: var(--ink); }
+
+.defil__carte {
+  position: relative; width: min(560px, 100%); margin: 0 auto;
+  aspect-ratio: 4 / 5; background: var(--ink);
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  cursor: pointer;
+}
+/* Chaque tranche montre son quart de la même photo : ensemble elles la reforment */
+.defil__tranche {
+  background-repeat: no-repeat;
+  background-size: 400% 100%;
+  background-position: calc(var(--k) * 33.3333%) center;
+  transform-origin: center;
+}
+.defil__tranche.bascule { animation: bascule .26s cubic-bezier(.5, 0, .2, 1); }
+@keyframes bascule {
+  0%   { transform: scaleY(1);   filter: brightness(1); }
+  45%  { transform: scaleY(.04); filter: brightness(2.4); }
+  100% { transform: scaleY(1);   filter: brightness(1); }
+}
+
+/* Repères d'angle, façon viseur */
+.defil__coin { position: absolute; width: 18px; height: 18px; border: 2px solid var(--orange); }
+.defil__coin--hg { top: 10px; left: 10px;  border-right: 0; border-bottom: 0; }
+.defil__coin--hd { top: 10px; right: 10px; border-left: 0;  border-bottom: 0; }
+.defil__coin--bg { bottom: 10px; left: 10px;  border-right: 0; border-top: 0; }
+.defil__coin--bd { bottom: 10px; right: 10px; border-left: 0;  border-top: 0; }
+
+.defil__marque {
+  position: absolute; left: 14px; bottom: 12px;
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 11px; font-weight: 600; letter-spacing: .3em;
+  color: rgba(255,255,255,.72);
+  mix-blend-mode: difference;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .defil__tranche.bascule { animation: none; }
+}
+
+/* Rappel de la prévente dans l'en-tête */
+.bar__flash {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 12px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase;
+  color: #F4F3F0; text-decoration: none;
+  padding: 7px 14px; border: 1px solid rgba(232,130,43,.5); border-radius: 99px;
+  transition: background .25s ease, border-color .25s ease;
+}
+.bar__flash b { color: var(--orange); font-weight: 600; }
+.bar__flash i {
+  width: 7px; height: 7px; border-radius: 50%; background: var(--orange); flex: 0 0 auto;
+  animation: clignote 1.8s ease-in-out infinite;
+}
+@keyframes clignote { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .35; transform: scale(.8); } }
+.bar__flash:hover { background: rgba(232,130,43,.14); border-color: var(--orange); }
+@media (max-width: 620px) { .bar__flash b { display: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .roue__part.est-encours, .bar__flash i { animation: none; }
+  .prev__btn, .roue__part { transition: none; }
+}
+
+/* ==========================================================
+   Prévente : le cadran qui pivote vers le tarif en cours
+   ========================================================== */
+.prev {
+  position: relative; overflow: hidden;
+  background: #0A0A0B; color: #F4F3F0;
+  padding: clamp(54px, 9vw, 118px) var(--gut);
+}
+.prev::before {
+  content: ''; position: absolute; inset: -20% -10% auto -10%; height: 70%;
+  background: radial-gradient(45% 60% at 50% 0%, rgba(232,130,43,.20), transparent 70%);
+  pointer-events: none;
+}
+.prev__haut { position: relative; text-align: center; max-width: 760px; margin: 0 auto clamp(26px, 4vw, 52px); }
+.prev__titre {
+  font-family: 'Archivo Black', 'Archivo', sans-serif;
+  font-size: clamp(44px, 12vw, 128px); line-height: .88; letter-spacing: -.045em;
+  text-transform: uppercase; margin: 0 0 16px;
+}
+.prev__principe {
+  margin: 0 auto 14px; max-width: 52ch; color: #7E7F84;
+  font-size: clamp(13px, 1.4vw, 15px); line-height: 1.6;
+}
+.prev__principe b { color: #C7C8CC; font-weight: 600; }
+
+.prev__accroche {
+  margin: 0 auto; max-width: 48ch; color: #A9AAAE;
+  font-size: clamp(14.5px, 1.7vw, 18px);
+}
+.prev__accroche b { color: #F4F3F0; font-weight: 600; }
+
+.prev__scene { position: relative; display: flex; justify-content: center; }
+.cadran { width: min(430px, 100%); }
+.cadran__svg { width: 100%; height: auto; display: block; overflow: visible; }
+
+/* La roue tourne pour amener le tarif en cours sous le repère */
+.cadran__roue {
+  transform: rotate(var(--rot, 0deg));
+  transform-origin: 200px 200px;
+  transition: transform 1.1s cubic-bezier(.65, 0, .2, 1);
+}
+.cadran__part { stroke: #0A0A0B; stroke-width: 2.5; transition: filter .3s ease; }
+.cadran__part:hover { filter: brightness(1.12); }
+.cadran__part.est-encours { filter: drop-shadow(0 0 18px rgba(232,130,43,.55)); }
+.cadran__part.est-epuise { opacity: .55; }
+
+/* Les chiffres restent droits pendant que la roue tourne */
+.cadran__chiffre {
+  transition: transform 1.1s cubic-bezier(.65, 0, .2, 1);
+}
+.cadran__chiffre text {
+  font-family: 'Archivo Black', 'Archivo', sans-serif; font-size: 24px;
+  text-anchor: middle; transform: rotate(calc(-1 * var(--rot, 0deg)));
+  transform-box: fill-box; transform-origin: center;
+}
+
+.cadran__repere { fill: var(--orange); }
+.cadran__trait { stroke: var(--orange); stroke-width: 2; }
+.cadran__moyeu { fill: #0A0A0B; stroke: rgba(244,243,240,.1); stroke-width: 1; }
+
+.cadran__etiq {
+  font-family: 'Chakra Petch', sans-serif; font-size: 11px; font-weight: 600;
+  letter-spacing: .3em; text-transform: uppercase; fill: var(--orange); text-anchor: middle;
+}
+.cadran__prix {
+  font-family: 'Archivo Black', 'Archivo', sans-serif; font-size: 46px;
+  fill: #F4F3F0; text-anchor: middle; letter-spacing: -.03em;
+}
+.cadran__dev {
+  font-family: 'Chakra Petch', sans-serif; font-size: 12px; font-weight: 600;
+  letter-spacing: .24em; fill: #7C7D81; text-anchor: middle;
+}
+.cadran__reste {
+  font-family: 'Chakra Petch', sans-serif; font-size: 11.5px; font-weight: 600;
+  letter-spacing: .14em; text-transform: uppercase; fill: #A9AAAE; text-anchor: middle;
+}
+
+/* La bande des 5 tarifs, sous le cadran */
+.bande {
+  position: relative; list-style: none; margin: clamp(26px, 4vw, 46px) auto 0; padding: 0;
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 8px;
+  max-width: 780px;
+}
+.bande__pas {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 11px 18px; border: 1px solid rgba(244,243,240,.14); border-radius: 2px;
+  min-width: 104px;
+}
+.bande__prix {
+  font-family: 'Archivo Black', 'Archivo', sans-serif; font-size: 17px; letter-spacing: -.01em;
+}
+.bande__info {
+  font-family: 'Chakra Petch', sans-serif; font-size: 10.5px; font-weight: 600;
+  letter-spacing: .14em; text-transform: uppercase; color: #7C7D81;
+}
+.bande__pas--epuise { opacity: .42; }
+.bande__pas--epuise .bande__prix { text-decoration: line-through; }
+.bande__pas--encours { border-color: var(--orange); background: rgba(232,130,43,.1); }
+.bande__pas--encours .bande__info { color: var(--orange); }
+
+.prev__btn {
+  position: relative; display: block; width: fit-content;
+  margin: clamp(26px, 4vw, 46px) auto 0;
+  text-decoration: none; text-align: center;
+  font-family: 'Chakra Petch', sans-serif; font-weight: 600;
+  font-size: 14px; letter-spacing: .16em; text-transform: uppercase;
+  padding: 18px 44px; border-radius: 2px;
+  background: var(--orange); color: #14100C;
+  transition: transform .2s ease, filter .2s ease;
+}
+.prev__btn:hover { transform: translateY(-2px); filter: brightness(1.08); }
+.prev__btn--attente { background: transparent; color: #F4F3F0; border: 1px solid rgba(244,243,240,.3); }
+.prev__btn--attente:hover { background: rgba(244,243,240,.06); filter: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .cadran__roue, .cadran__chiffre, .prev__btn, .cadran__part { transition: none; }
+}
+
+/* Dernier cran : le prix normal, volontairement sans compteur */
+.bande__pas--normal { border-style: dashed; border-color: rgba(244,243,240,.22); opacity: .72; }
+.bande__pas--normal .bande__prix { font-family: 'Chakra Petch', sans-serif; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; }
+
+/* ---------- L'en-tête sur téléphone ----------
+   Quatre éléments ne rentrent pas dans 390 px : « nous écrire » se cassait
+   en deux lignes et faisait grossir toute la barre. On garde ce qui fait
+   vendre (le rappel de prévente, le contact) et on laisse tomber le lien
+   coloris, qui n'est qu'un raccourci vers une section plus bas. */
+.bar__nav a, .bar__flash { white-space: nowrap; }
+
+@media (max-width: 720px) {
+  .bar { gap: 10px; padding-inline: clamp(12px, 4vw, 20px); }
+  .bar__logo { width: clamp(104px, 30vw, 136px); height: 34px; }
+  .bar__nav { gap: 14px; }
+  .bar__nav a { font-size: 11px; letter-spacing: .1em; }
+  .bar__flash { padding: 6px 11px; font-size: 11px; letter-spacing: .08em; }
+}
+
+@media (max-width: 560px) {
+  .bar__nav a[href="#coloris"] { display: none; }
+  .bar__logo { width: 96px; height: 30px; }
+}

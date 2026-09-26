@@ -1,0 +1,41 @@
+# Secrets et variables d'environnement
+.env
+.env.local
+.env.*.local
+
+# Dépendances
+vendor/
+node_modules/
+composer.lock
+
+# Logs et données de test
+storage/logs/*
+storage/data/*
+!storage/logs/.gitkeep
+!storage/data/.gitkeep
+
+# Fichiers temporaires
+*.tmp
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# PHP
+*.phar
+
+# Session et cache
+*.session
+cache/*
+!cache/.gitkeep
+
+# Builds
+dist/
+build/
