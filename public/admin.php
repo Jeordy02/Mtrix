@@ -88,7 +88,15 @@ foreach (mtx_paliers_def() as $p) if ((int) $p['n'] === $debloque + 1) { $procha
     --ombre: 0 1px 2px rgba(20,14,8,.04), 0 10px 26px -12px rgba(20,14,8,.14);
   }
   * { box-sizing: border-box; }
-  html { scrollbar-gutter: stable; }
+  html {
+    scrollbar-gutter: stable;
+    /* La gouttiere reservée par scrollbar-gutter était peinte avec la
+       piste d'ascenseur par défaut, quasi blanche : une bande claire de
+       15 px le long du bord droit. On donne un fond à <html> et on
+       teinte l'ascenseur aux couleurs de la page. */
+    background: var(--fond);
+    scrollbar-color: #C9C6BC var(--fond);
+  }
 
   /* Rien n'avait d'anneau de focus : le panneau était inutilisable au
      clavier. Une règle, tous les contrôles. */

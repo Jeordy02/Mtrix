@@ -163,6 +163,11 @@ body:not(.intro-on) .ln > span {
 }
 .bar__logo img {
   width: 100%; height: 100%; object-fit: cover; object-position: center;
+  /* Le JPEG a un fond #000000 pur ; la barre est à #0C0C0D. Sans fondu,
+     on voyait le rectangle de recadrage se détacher sur la barre. En
+     screen, le noir pur laisse passer le fond et les lettres blanches
+     restent intactes — plus de cadre, à toutes les largeurs. */
+  mix-blend-mode: screen;
   transition: transform .35s ease;
 }
 .bar__logo:hover img { transform: scale(1.06); }
