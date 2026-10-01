@@ -1,6 +1,20 @@
 -- M'trix Database Schema
 -- Toutes les tables nécessaires pour une prévente sécurisée et scalable
 
+-- --- 0. MTX_SITE_DATA (stockage du frontend historique) ---
+-- Le site qui tourne aujourd'hui (public/*.php via includes/store.php) lit et
+-- écrit ici, sous forme de JSON indexé par clé : etat, commandes, admin,
+-- attente_file, attente_promues. Les tables normalisées ci-dessous sont celles
+-- du backend refactorisé, que les endpoints API consommeront ; tant qu'ils ne
+-- sont pas écrits, c'est cette table seule qui porte l'état du site.
+-- Sans elle, les trois pages publiques échouent sur une PDOException.
+CREATE TABLE mtx_site_data (
+  data_key   VARCHAR(64) NOT NULL,
+  payload    LONGTEXT    NOT NULL COMMENT 'Document JSON',
+  updated_at TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (data_key)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- --- 1. PALIERS (Tiers de prix) ---
 CREATE TABLE paliers (
   id INT PRIMARY KEY AUTO_INCREMENT,

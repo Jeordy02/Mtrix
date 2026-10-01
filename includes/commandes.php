@@ -400,9 +400,43 @@ function mtx_admin_definir(string $mdp): void {
 function mtx_admin_connecter(string $mdp): bool {
     $d = mtx_read('admin', []);
     if (empty($d['hash']) || !password_verify($mdp, $d['hash'])) return false;
+    /* Nouvel identifiant de session à l'ouverture : sans ça, un identifiant
+       fixé avant la connexion reste valable après, et donne le panneau. */
+    session_regenerate_id(true);
     $_SESSION['mtx_admin'] = true;
+    unset($_SESSION['mtx_csrf']);
     return true;
 }
 
 function mtx_admin_connecte(): bool { return !empty($_SESSION['mtx_admin']); }
-function mtx_admin_sortir(): void { unset($_SESSION['mtx_admin']); }
+
+function mtx_admin_sortir(): void {
+    unset($_SESSION['mtx_admin'], $_SESSION['mtx_csrf']);
+    session_regenerate_id(true);
+}
+
+/* ---------------------------------------------------------------------
+   6. Jeton anti-CSRF des actions du panneau
+
+   Les actions du panneau (changer un statut, supprimer une commande,
+   débloquer un palier) se déclenchaient sur un simple POST : une page
+   tierce ouverte dans le même navigateur pouvait les soumettre à l'insu
+   de l'admin connecté. Chaque formulaire porte désormais un jeton lié à
+   la session, vérifié avant toute écriture.
+   --------------------------------------------------------------------- */
+
+function mtx_csrf_jeton(): string {
+    if (empty($_SESSION['mtx_csrf'])) {
+        $_SESSION['mtx_csrf'] = bin2hex(random_bytes(32));
+    }
+    return (string) $_SESSION['mtx_csrf'];
+}
+
+function mtx_csrf_champ(): string {
+    return '<input type="hidden" name="jeton_csrf" value="' . h(mtx_csrf_jeton()) . '">';
+}
+
+function mtx_csrf_valide(): bool {
+    $attendu = (string) ($_SESSION['mtx_csrf'] ?? '');
+    return $attendu !== '' && hash_equals($attendu, (string) ($_POST['jeton_csrf'] ?? ''));
+}

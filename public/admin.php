@@ -1,6 +1,17 @@
 <?php
 /* M'trix — page privée : commandes et prévente. */
 
+/* Le cookie de session partait avec les réglages par défaut : lisible en
+   JavaScript, envoyé sur les requêtes venues d'autres sites, et en clair
+   si la page était servie en HTTP. Secure ne s'active que sous HTTPS,
+   sinon la session serait perdue en développement local. */
+$httpsActif = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+    || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https');
+session_set_cookie_params([
+    'httponly' => true,
+    'samesite' => 'Lax',
+    'secure'   => $httpsActif,
+]);
 session_start();
 require_once __DIR__ . '/../config/autoload.php';
 require __DIR__ . '/../includes/commandes.php';
@@ -36,6 +47,10 @@ if (empty($ecran) && !mtx_admin_connecte()) {
 
 /* --- Actions, une fois connecté --- */
 if (empty($ecran) && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    /* Rien ne s'écrit sans un jeton valide : un POST fabriqué par un autre
+       site n'a aucun moyen de le connaître. */
+    if (!mtx_csrf_valide()) { header('Location: admin.php'); exit; }
+
     $a = $_POST['action'] ?? '';
     if ($a === 'statut')          mtx_commande_statut((string) $_POST['ref'], (string) $_POST['statut']);
     elseif ($a === 'supprimer')   mtx_commande_supprimer((string) $_POST['ref']);
@@ -96,6 +111,13 @@ foreach (mtx_paliers_def() as $p) if ((int) $p['n'] === $debloque + 1) { $procha
        teinte l'ascenseur aux couleurs de la page. */
     background: var(--fond);
     scrollbar-color: #C9C6BC var(--fond);
+  }
+  /* Les écrans de connexion et d'installation sont sombres, alors que
+     <html> reste crème : la gouttière rendait une bande claire le long du
+     bord droit. On aligne la racine sur le fond de ces écrans-là. */
+  html:has(.porte) {
+    background: var(--ink);
+    scrollbar-color: #3A3A3D var(--ink);
   }
 
   /* Rien n'avait d'anneau de focus : le panneau était inutilisable au
@@ -489,6 +511,7 @@ foreach (mtx_paliers_def() as $p) if ((int) $p['n'] === $debloque + 1) { $procha
             <p class="lance-hero__txt">Le site, les paliers, la file d&rsquo;attente : tout tourne déjà.
             Il ne manque que ton feu vert pour que le premier client puisse payer.</p>
             <form method="post">
+              <?= mtx_csrf_champ() ?>
               <input type="hidden" name="action" value="lancer">
               <button class="btn-accent lance-hero__btn" type="submit">
                 Lancer la prévente
@@ -506,7 +529,7 @@ foreach (mtx_paliers_def() as $p) if ((int) $p['n'] === $debloque + 1) { $procha
               : 'Ce palier est épuisé' ?></p>
             <p class="lancement__txt">Quand il n&rsquo;y a plus rien à vendre dedans, lance le palier suivant.</p>
           </div>
-          <form method="post"><input type="hidden" name="action" value="lancer">
+          <form method="post"><?= mtx_csrf_champ() ?><input type="hidden" name="action" value="lancer">
             <button class="btn-accent" type="submit">Lancer le palier <?= $prochain['n'] ?> — <?= h(fcfa($prochain['prix'])) ?></button>
           </form>
         </div>
@@ -524,11 +547,12 @@ foreach (mtx_paliers_def() as $p) if ((int) $p['n'] === $debloque + 1) { $procha
       </div>
       <div class="carte" style="padding:16px 18px">
         <div class="rang-btn">
-          <form method="post" class="inline"><input type="hidden" name="action" value="vente_directe">
+          <form method="post" class="inline"><?= mtx_csrf_champ() ?><input type="hidden" name="action" value="vente_directe">
             <button class="btn-fort btn-sm" type="submit">+ Vente hors site</button></form>
-          <form method="post" class="inline"><input type="hidden" name="action" value="rendre">
+          <form method="post" class="inline"><?= mtx_csrf_champ() ?><input type="hidden" name="action" value="rendre">
             <button class="btn-sm" type="submit">− 1 place</button></form>
           <form method="post" class="inline rang-btn" style="gap:6px">
+            <?= mtx_csrf_champ() ?>
             <input type="hidden" name="action" value="fixer">
             <input type="number" name="n" min="0" max="<?= $total ?>" value="<?= $vendues ?>">
             <button class="btn-sm" type="submit">Fixer</button>
@@ -590,24 +614,25 @@ foreach (mtx_paliers_def() as $p) if ((int) $p['n'] === $debloque + 1) { $procha
               <td style="white-space:nowrap">
                 <div class="rang-btn" style="gap:6px">
                   <?php if ($s === 'a_confirmer'): ?>
-                    <form method="post" class="inline"><input type="hidden" name="action" value="statut">
+                    <form method="post" class="inline"><?= mtx_csrf_champ() ?><input type="hidden" name="action" value="statut">
                       <input type="hidden" name="ref" value="<?= h($c['ref']) ?>">
                       <button name="statut" value="payee" class="btn-danger btn-sm">Confirmer</button></form>
                   <?php elseif ($s === 'attente'): ?>
-                    <form method="post" class="inline"><input type="hidden" name="action" value="statut">
+                    <form method="post" class="inline"><?= mtx_csrf_champ() ?><input type="hidden" name="action" value="statut">
                       <input type="hidden" name="ref" value="<?= h($c['ref']) ?>">
                       <button name="statut" value="payee" class="btn-accent btn-sm">Payée</button></form>
                   <?php elseif ($s === 'payee'): ?>
-                    <form method="post" class="inline"><input type="hidden" name="action" value="statut">
+                    <form method="post" class="inline"><?= mtx_csrf_champ() ?><input type="hidden" name="action" value="statut">
                       <input type="hidden" name="ref" value="<?= h($c['ref']) ?>">
                       <button name="statut" value="livree" class="btn-accent btn-sm">Livrée</button></form>
                   <?php endif; ?>
                   <?php if ($s !== 'annulee'): ?>
-                    <form method="post" class="inline"><input type="hidden" name="action" value="statut">
+                    <form method="post" class="inline"><?= mtx_csrf_champ() ?><input type="hidden" name="action" value="statut">
                       <input type="hidden" name="ref" value="<?= h($c['ref']) ?>">
                       <button name="statut" value="annulee" class="btn-sm">Annuler</button></form>
                   <?php endif; ?>
                   <form method="post" class="inline" onsubmit="return confirm('Supprimer définitivement <?= h($c['ref']) ?> ?')">
+                    <?= mtx_csrf_champ() ?>
                     <input type="hidden" name="action" value="supprimer">
                     <input type="hidden" name="ref" value="<?= h($c['ref']) ?>">
                     <button class="btn-ghost-danger btn-icone" type="submit">

@@ -536,6 +536,10 @@ body:not(.intro-on) .picker__dot {
 }
 @keyframes clignote { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .35; transform: scale(.8); } }
 .bar__flash:hover { background: rgba(232,130,43,.14); border-color: var(--orange); }
+/* .bar__nav a pose une border-bottom transparente pour son soulignement au
+   survol. La pastille vit dans ce nav, et .bar__nav a (0,1,1) l'emporte sur
+   .bar__flash (0,1,0) : le bas du contour disparaissait. */
+.bar__nav a.bar__flash { border-bottom-color: rgba(232,130,43,.5); }
 @media (max-width: 620px) { .bar__flash b { display: none; } }
 
 @media (prefers-reduced-motion: reduce) {
