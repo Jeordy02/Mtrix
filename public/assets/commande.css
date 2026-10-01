@@ -6,7 +6,18 @@
    l'étau qui se resserre, et l'écran de fin est un noir total : on change
    de monde au moment où l'argent est rentré. */
 
-.cmd-page { background: var(--paper); }
+.cmd-page {
+  background: var(--paper);
+  /* Les valeurs de l'écran noir, nommées une fois. Tout le bas de ce
+     fichier les réécrivait en dur — d'où deux éléments restés noir sur
+     noir sur l'écran de livraison. */
+  --sur-ink:    #F4F3F0;   /* le texte plein sur fond noir */
+  --sur-doux:   #A9AAB0;   /* le texte courant sur fond noir  (8,4:1) */
+  --sur-faible: #8C8D93;   /* les libellés sur fond noir      (5,9:1) */
+  --sur-line:   #2E2E32;   /* les bordures de champ */
+  --sur-fond:   #141416;   /* le fond d'un champ */
+  --sur-err:    #F08A72;
+}
 
 /* ---------- En-tête allégé ---------- */
 .bar--mince { justify-content: space-between; }
@@ -17,7 +28,7 @@
   border-bottom: 1px solid transparent; padding-bottom: 2px;
   transition: color .2s ease, border-color .2s ease;
 }
-.bar__retour:hover { color: var(--orange); border-bottom-color: var(--orange); }
+.bar__retour:hover { color: var(--orange-txt); border-bottom-color: var(--orange-txt); }
 
 .alerte {
   max-width: 760px; margin: 18px auto 0; padding: 13px 18px;
@@ -37,7 +48,7 @@
   gap: 0; align-items: start;
 }
 @media (min-width: 900px) {
-  .res { grid-template-columns: 1fr 1fr; min-height: calc(100vh - 66px); }
+  .res { grid-template-columns: 1fr 1fr; min-height: calc(100vh - var(--bar-h)); }
 }
 
 /* ---------- La paire ---------- */
@@ -49,7 +60,7 @@
   min-height: 40vh;
 }
 @media (min-width: 900px) {
-  .res__vue { position: sticky; top: 66px; height: calc(100vh - 66px); min-height: 0; }
+  .res__vue { position: sticky; top: var(--bar-h); height: calc(100vh - var(--bar-h)); min-height: 0; }
 }
 
 .res__fond { display: none; }   /* le filigrane géant est retiré : trop chargé */
@@ -84,23 +95,25 @@
   color: var(--grey);
 }
 
-.res__prix { display: flex; align-items: baseline; gap: 8px; margin: 0 0 4px; }
+.res__prix { display: flex; align-items: baseline; gap: 10px; margin: 0 0 var(--sp-s); }
 .res__prix b {
-  font-family: 'Archivo', sans-serif;
-  font-size: clamp(32px, 5vw, 42px); font-weight: 700; line-height: 1.05; letter-spacing: -.02em;
+  font-family: 'Archivo Black', 'Archivo', sans-serif;
+  font-size: clamp(56px, 11vw, 104px); font-weight: 400;
+  line-height: .86; letter-spacing: var(--tracking-tight);
+  font-variant-numeric: tabular-nums;
 }
 .res__prix span {
   font-family: 'Chakra Petch', sans-serif;
-  font-size: 13px; font-weight: 700; letter-spacing: .1em;
+  font-size: 13px; font-weight: 700; letter-spacing: .14em;
   color: var(--grey);
 }
-.res__prix--fin b { font-size: clamp(28px, 4.5vw, 36px); }
+.res__prix--fin b { font-size: clamp(40px, 7vw, 64px); }
 
 .res__reste {
   margin: 0 0 clamp(22px, 3.5vw, 30px);
   font-size: 14.5px; line-height: 1.55; color: var(--grey);
 }
-.res__reste strong { color: var(--orange); font-weight: 600; }
+.res__reste strong { color: var(--orange-txt); font-weight: 700; }
 
 /* ---------- L'échelle des paliers : discrète, lisible d'un regard ---------- */
 .echelle {
@@ -133,8 +146,8 @@
 .echelle__pas.est-epuise .echelle__barre i { background: var(--ink); }
 
 .echelle__pas.est-encours .echelle__prix { color: var(--ink); }
-.echelle__pas.est-encours .echelle__etat { color: var(--orange); }
-.echelle__pas.est-encours .echelle__barre i { background: var(--orange); }
+.echelle__pas.est-encours .echelle__etat { color: var(--orange-txt); }
+.echelle__pas.est-encours .echelle__barre i { background: var(--orange-txt); }
 
 .echelle__pas.est-normal .echelle__prix,
 .echelle__pas.est-normal .echelle__etat { opacity: .55; }
@@ -170,7 +183,7 @@
   box-shadow: 0 0 0 2px var(--paper), 0 0 0 3.5px var(--ink);
 }
 .teintes__opt:hover .teintes__puce { transform: scale(1.06); }
-.teintes__opt input:focus-visible ~ .teintes__puce { outline: 2px solid var(--orange); outline-offset: 3px; }
+.teintes__opt input:focus-visible ~ .teintes__puce { outline: 2px solid var(--focus); outline-offset: 3px; }
 
 /* La coche, visible seulement sur la couleur claire où la pastille se voit mal sinon */
 .teintes__puce::after {
@@ -217,11 +230,14 @@
 /* Sur téléphone, le bouton reste sous le pouce */
 @media (max-width: 899px) {
   .payer { position: sticky; bottom: 14px; box-shadow: 0 8px 26px rgba(0,0,0,.16); }
+  /* Le bouton collant recouvrait le bas du panneau : on lui réserve sa place
+     pour qu'il ne passe jamais par-dessus un champ qui a le focus. */
+  .res__panneau { padding-bottom: clamp(96px, 16vw, 140px); }
 }
 /* =====================================================================
    ÉCRANS 2 et 3 — l'argent est rentré, on bascule en noir
    ===================================================================== */
-.cmd-page--fin { background: var(--ink); color: #F4F3F0; }
+.cmd-page--fin { background: var(--ink); color: var(--sur-ink); --focus: var(--orange); }
 .cmd-page--fin .bar { background: var(--ink); border-bottom-color: #232326; }
 .cmd-page--fin .bar__retour { color: #8C8D93; }
 .cmd-page--fin .foot { background: var(--ink); border-top-color: #232326; color: #8C8D93; }
@@ -247,7 +263,7 @@
   animation: tombe .75s cubic-bezier(.16,1,.3,1) both;
 }
 .bravo__place i {
-  font-style: normal; font-size: .27em; letter-spacing: -.02em; color: #5E4227;
+  font-style: normal; font-size: .27em; letter-spacing: -.02em; color: #9A6E3C;
 }
 @keyframes tombe {
   from { opacity: 0; transform: translateY(26px) scale(.9); }
@@ -296,10 +312,10 @@
 .champ input, .champ textarea {
   font: inherit; font-size: 16px; width: 100%;
   padding: 15px 16px; border-radius: 2px;
-  border: 1px solid #2E2E32; background: #141416; color: #F4F3F0;
+  border: 1px solid var(--sur-line); background: var(--sur-fond); color: var(--sur-ink);
   transition: border-color .2s ease, background .2s ease;
 }
-.champ input::placeholder, .champ textarea::placeholder { color: #5A5B61; }
+.champ input::placeholder, .champ textarea::placeholder { color: #7E7F86; }
 .champ input:focus, .champ textarea:focus {
   outline: none; border-color: var(--orange); background: #18181B;
 }
@@ -316,7 +332,7 @@
   margin: 0 0 clamp(18px, 3vw, 26px);
   font-family: 'Chakra Petch', sans-serif;
   font-size: 11.5px; font-weight: 600; letter-spacing: .2em; text-transform: uppercase;
-  color: #6E6F75;
+  color: var(--sur-faible);
 }
 
 .carte {
@@ -349,7 +365,7 @@
 }
 .carte__an {
   font-family: 'Chakra Petch', sans-serif; font-size: 11px; font-weight: 600;
-  letter-spacing: .16em; color: #6E6F75;
+  letter-spacing: .16em; color: #8A8B92;
 }
 
 .carte__num {
@@ -357,7 +373,7 @@
   font-family: 'Archivo Black', 'Archivo', sans-serif;
   font-size: 78px; line-height: .84; letter-spacing: -.05em; color: var(--orange);
 }
-.carte__num i { font-style: normal; font-size: .3em; color: #57452F; }
+.carte__num i { font-style: normal; font-size: .3em; color: #93764F; }
 
 .carte__mot {
   position: relative; margin: 8px 0 22px;
@@ -373,7 +389,7 @@
 .carte__bas i {
   display: block; font-style: normal; margin-bottom: 3px;
   font-family: 'Chakra Petch', sans-serif; font-size: 9.5px; font-weight: 600;
-  letter-spacing: .18em; text-transform: uppercase; color: #5E5F65;
+  letter-spacing: .18em; text-transform: uppercase; color: #8A8B92;
 }
 .carte__bas b {
   font-family: 'Chakra Petch', sans-serif; font-size: 14px; font-weight: 700;
@@ -387,7 +403,7 @@
 .carte-zone__liens .payer { justify-content: center; }
 .lien-nu {
   font-family: 'Chakra Petch', sans-serif; font-size: 11.5px; font-weight: 600;
-  letter-spacing: .16em; text-transform: uppercase; color: #6E6F75; text-decoration: none;
+  letter-spacing: .16em; text-transform: uppercase; color: var(--sur-faible); text-decoration: none;
   border-bottom: 1px solid transparent; padding-bottom: 2px;
   transition: color .2s ease, border-color .2s ease;
 }
@@ -472,7 +488,7 @@
   font-weight: 700;
   letter-spacing: .2em;
   text-transform: uppercase;
-  color: #E8822B;
+  color: var(--orange);
 }
 
 .livr__titre {
@@ -484,7 +500,7 @@
   letter-spacing: -.02em;
 }
 
-.livr__titre span { color: #E8822B; }
+.livr__titre span { color: var(--orange); }
 
 .livr__couleur {
   margin: 0;
@@ -493,7 +509,7 @@
   font-weight: 700;
   letter-spacing: .1em;
   text-transform: uppercase;
-  color: #A9AAAE;
+  color: var(--sur-doux);
 }
 
 .livr__place {
@@ -505,29 +521,29 @@
   font-size: clamp(42px, 10vw, 64px);
   font-weight: 900;
   line-height: 1;
-  letter-spacing: -.01em;
-  color: #0C0C0D;
+  letter-spacing: var(--tracking-tight);
+  color: var(--orange);
 }
 
 .livr__place span {
   font-size: clamp(18px, 4vw, 24px);
-  color: #8C8D93;
+  color: var(--sur-faible);
 }
 
 .livr__prix {
   margin: clamp(14px, 2vw, 20px) 0 0;
   font-size: clamp(13.5px, 2vw, 15px);
   line-height: 1.55;
-  color: #A9AAAE;
+  color: var(--sur-doux);
 }
 
-.livr__prix b { color: #F4F3F0; font-weight: 600; }
+.livr__prix b { color: var(--sur-ink); font-weight: 600; }
 
 .livr__prix span {
   display: block;
   margin-top: 6px;
   font-size: 12px;
-  color: #E8822B;
+  color: var(--orange);
 }
 
 .livr__form-zone {
@@ -542,18 +558,18 @@
   font-size: clamp(28px, 5vw, 36px);
   font-weight: 900;
   line-height: 1.1;
-  letter-spacing: -.01em;
-  color: #0C0C0D;
+  letter-spacing: var(--tracking-tight);
+  color: var(--sur-ink);
 }
 
 .livr__form-sous {
   margin: 0 0 clamp(24px, 4vw, 32px);
   font-size: 14px;
   line-height: 1.6;
-  color: #8C8D93;
+  color: var(--sur-faible);
 }
 
-.livr__form-sous b { color: #E8822B; }
+.livr__form-sous b { color: var(--orange); }
 
 .livr__form {
   display: flex;
@@ -584,7 +600,7 @@
   font-weight: 700;
   letter-spacing: .1em;
   text-transform: uppercase;
-  color: #8C8D93;
+  color: var(--sur-faible);
 }
 
 .livr__label small {
@@ -603,23 +619,23 @@
   font-family: 'Archivo', sans-serif;
   font-size: 15px;
   padding: 12px 14px;
-  border: 1px solid #363639;
+  border: 1px solid var(--sur-line);
   border-radius: 8px;
   background: transparent;
-  color: #F4F3F0;
+  color: var(--sur-ink);
   transition: border-color .15s ease, background .15s ease;
 }
 
 .livr__champ input::placeholder,
 .livr__champ textarea::placeholder {
-  color: #5A5B61;
+  color: #7E7F86;
 }
 
 .livr__champ input:focus,
 .livr__champ textarea:focus {
   outline: none;
-  border-color: #E8822B;
-  background: rgba(232, 130, 43, .04);
+  border-color: var(--orange);
+  background: rgba(232, 130, 43, .06);
 }
 
 .livr__champ textarea {
@@ -630,15 +646,41 @@
 .livr__err {
   display: block;
   font-size: 11.5px;
-  color: #F08A72;
+  color: var(--sur-err);
   font-family: 'Chakra Petch', sans-serif;
   letter-spacing: .05em;
 }
+.livr__champ input[aria-invalid="true"],
+.livr__champ textarea[aria-invalid="true"] { border-color: var(--sur-err); }
+
+/* Le résumé d'erreurs : il prend le focus après un envoi raté, et chaque
+   ligne mène au champ fautif. Les erreurs en ligne restent en place. */
+.livr__resume {
+  margin: 0 0 var(--sp-m); padding: 16px 18px;
+  border: 1px solid var(--sur-err); border-radius: 8px;
+  background: rgba(240,138,114,.08);
+}
+.livr__resume h2 {
+  margin: 0 0 8px !important;
+  font-family: 'Chakra Petch', sans-serif !important;
+  font-size: 12px !important; font-weight: 700 !important;
+  letter-spacing: .16em !important; text-transform: uppercase;
+  color: var(--sur-err) !important;
+}
+.livr__resume ul { margin: 0; padding-left: 18px; }
+.livr__resume li { font-size: 13.5px; line-height: 1.6; }
+.livr__resume a { color: var(--sur-ink); text-decoration: underline; text-underline-offset: 2px; }
+
+/* La zone d'annonce du paiement : invisible tant qu'elle est vide, mais
+   lue par les lecteurs d'écran dès qu'un message y arrive. */
+.payer__annonce { margin: 11px 0 0; font-size: 13px; line-height: 1.55; color: var(--orange-txt); }
+.payer__annonce:empty { display: none; }
+.cmd-page--fin .payer__annonce { color: var(--orange); }
 
 .livr__btn {
   margin-top: 8px;
   padding: 16px 24px;
-  background: #E8822B;
+  background: var(--orange);
   border: 0;
   border-radius: 8px;
   color: #14100C;

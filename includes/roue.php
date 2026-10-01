@@ -12,12 +12,18 @@ function mtx_roue(): string {
     $cx = 200; $cy = 200; $rOut = 168; $rIn = 104;
     $jeu = 1.6;
 
+    /* Cinq crans d'une seule teinte, du plus clair au plus sombre.
+       Avant, c'étaient cinq couleurs sans rapport (jaune, orange, rouge,
+       grenat, violet) : ça faisait cinq accents sur un dessin qui n'en
+       veut qu'un. La rampe garde l'information — ça se durcit à mesure
+       que ça coûte cher — sans sortir de l'orange de marque.
+       Chaque encre tient au moins 3,5:1 sur son fond. */
     $teintes = [
-        1 => ['#F5C518', '#6B5200'],
-        2 => ['#E8822B', '#5E2E03'],
-        3 => ['#DC4F2B', '#551305'],
-        4 => ['#B92A46', '#FFE9EE'],
-        5 => ['#6E1D57', '#FBE9F5'],
+        1 => ['#F7C58A', '#4A2A05'],
+        2 => ['#F0A054', '#3D2103'],
+        3 => ['#E8822B', '#3D2103'],
+        4 => ['#C96510', '#FFF2E6'],
+        5 => ['#8F4206', '#FFE9D6'],
     ];
 
     /* Angle à ramener en haut : le milieu de la part en cours. On pointe
@@ -46,7 +52,7 @@ function mtx_roue(): string {
         $encours = $p['statut'] === 'encours';
 
         [$fond, $encre] = $teintes[$p['n']] ?? ['#E8822B', '#fff'];
-        if ($epuise) { $fond = '#2A2A2C'; $encre = '#6E6F73'; }
+        if ($epuise) { $fond = '#2A2A2C'; $encre = '#8A8B90'; }   /* 4,2:1 — lisible malgré l'opacité réduite */
 
         $cls = 'cadran__part' . ($epuise ? ' est-epuise' : '') . ($encours ? ' est-encours' : '');
         $svg .= '<path class="' . $cls . '" d="' . mtx_secteur($cx, $cy, $rOut, $rIn, $a0, $a1) . '" fill="' . $fond . '">'

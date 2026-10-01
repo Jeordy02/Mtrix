@@ -97,11 +97,37 @@
       dots.forEach(function (d) {
         var on = d === b;
         d.classList.toggle('is-on', on);
-        d.setAttribute('aria-selected', on ? 'true' : 'false');
+        d.setAttribute('aria-pressed', on ? 'true' : 'false');
       });
-      if (nom) nom.textContent = b.getAttribute('title') || '';
+      if (nom) nom.textContent = b.getAttribute('data-nom') || '';
     });
   }
+
+  /* ==========================================================
+     Le bandeau défilant : on doit pouvoir l'arrêter
+     ---------------------------------------------------------
+     Le survol seul ne servait à rien au clavier ni au doigt.
+     ========================================================== */
+  (function () {
+    var ticker = document.getElementById('ticker');
+    var bouton = document.getElementById('tickerPause');
+    if (!ticker || !bouton) return;
+
+    var etiquette = bouton.querySelector('[data-pause-txt]');
+
+    function appliquer(fige) {
+      ticker.classList.toggle('est-fige', fige);
+      bouton.setAttribute('aria-pressed', fige ? 'true' : 'false');
+      if (etiquette) etiquette.textContent = fige ? 'Relancer' : 'Figer';
+    }
+
+    /* Si la personne a demandé moins d'animations, il part déjà arrêté. */
+    appliquer(reduit);
+
+    bouton.addEventListener('click', function () {
+      appliquer(!ticker.classList.contains('est-fige'));
+    });
+  })();
 
   /* ==========================================================
      Portée : l'image se recompose en tranches, très vite

@@ -6,13 +6,50 @@
   --smoke:  #F1F0EC;
   --grey:   #72747A;
   --line:   #E2E1DC;
-  --orange: #E8822B;
+
+  /* L'accent, en deux valeurs. Une seule teinte, deux usages :
+     --orange      les aplats, et le texte posé sur du noir (7,1:1 sur l'encre)
+     --orange-txt  le texte posé sur du blanc — l'orange de marque n'y tient
+                   que 2,7:1, il fallait l'assombrir pour rester lisible. */
+  --orange:     #E8822B;
+  --orange-txt: #A94F08;
+
+  /* L'anneau de focus. Il change de valeur selon le fond de la section :
+     les blocs noirs le repassent à --orange un peu plus bas. */
+  --focus: var(--orange-txt);
+
   --gut:    clamp(18px, 5vw, 56px);
+  --bar-h:  62px;     /* 10px + 42px + 10px — la hauteur réelle de .bar */
   --intro:  2600ms;   /* durée de l'entrée — une seule valeur à changer */
+
+  /* Le type : deux tailles démesurées, le reste est du texte courant.
+     C'est tout le propos du dessin — ou c'est énorme, ou c'est discret,
+     jamais entre les deux. */
+  --type-giant:   clamp(52px, 13vw, 168px);
+  --type-huge:    clamp(34px, 8vw, 92px);
+  --tracking-tight: -.05em;
+
+  /* L'échelle d'espacement. --sp-xl est la grande respiration entre
+     sections : c'est elle qui fait tenir les titres géants. */
+  --sp-s:  clamp(12px, 2vw, 20px);
+  --sp-m:  clamp(22px, 4vw, 40px);
+  --sp-l:  clamp(40px, 7vw, 72px);
+  --sp-xl: clamp(64px, 11vw, 128px);
 }
+
+/* Les sections noires : l'anneau de focus y reprend l'orange de marque. */
+.bar, .ticker, .prev, .cta, .defil__carte { --focus: var(--orange); }
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
+
+/* Tout ce qui se clique se voit au clavier. Une seule règle pour tout le
+   site : avant, seuls trois éléments sur une trentaine avaient un anneau. */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
 body {
   margin: 0;
   background: var(--paper);
@@ -25,6 +62,13 @@ body {
 body.intro-on { overflow: hidden; }
 img { max-width: 100%; display: block; }
 a { color: inherit; }
+
+/* Le texte que seuls les lecteurs d'écran lisent. Sert à nommer les
+   pastilles de coloris, qui ne portaient leur nom que dans un title. */
+.visuellement-cache {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip-path: inset(50%); white-space: nowrap;
+}
 
 /* ==========================================================
    Entrée : le nom se décode, puis l'écran s'ouvre en deux
@@ -62,9 +106,9 @@ a { color: inherit; }
 .intro__mot.is-glitch { animation: secousse .34s steps(2, end) 2; }
 @keyframes secousse {
   0%   { transform: translate(0,0);     text-shadow: none; }
-  25%  { transform: translate(-3px,1px); text-shadow: 3px 0 var(--orange), -3px 0 #3BE0FF; }
-  50%  { transform: translate(3px,-1px); text-shadow: -3px 0 var(--orange), 3px 0 #3BE0FF; }
-  75%  { transform: translate(-2px,0);  text-shadow: 2px 0 var(--orange), -2px 0 #3BE0FF; }
+  25%  { transform: translate(-3px,1px); text-shadow: 3px 0 var(--orange), -3px 0 #F4F3F0; }
+  50%  { transform: translate(3px,-1px); text-shadow: -3px 0 var(--orange), 3px 0 #F4F3F0; }
+  75%  { transform: translate(-2px,0);  text-shadow: 2px 0 var(--orange), -2px 0 #F4F3F0; }
   100% { transform: translate(0,0);     text-shadow: none; }
 }
 .intro__trait {
@@ -132,12 +176,12 @@ body:not(.intro-on) .ln > span {
 .bar__nav a:hover, .bar__nav a:focus-visible { color: var(--orange); border-bottom-color: var(--orange); }
 
 /* ---------- Hero ---------- */
-.hero { padding: clamp(40px, 8vw, 88px) var(--gut) clamp(28px, 5vw, 48px); text-align: center; }
+.hero { padding: var(--sp-xl) var(--gut) var(--sp-l); text-align: center; }
 .hero__title {
   font-family: 'Archivo Black', 'Archivo', sans-serif;
   text-transform: uppercase;
-  font-size: clamp(44px, 13vw, 132px); line-height: .92; letter-spacing: -0.035em;
-  margin: 0 auto 18px; max-width: 14ch; text-wrap: balance;
+  font-size: var(--type-giant); line-height: .9; letter-spacing: var(--tracking-tight);
+  margin: 0 auto var(--sp-s); max-width: 14ch; text-wrap: balance;
 }
 .hero__sub {
   max-width: 46ch; margin: 0 auto; color: var(--grey);
@@ -185,8 +229,8 @@ body:not(.intro-on) .picker__dot {
 @keyframes pastille { from { opacity: 0; transform: scale(.4); } to { opacity: 1; transform: none; } }
 .picker__dot span { display: block; width: 100%; height: 100%; border-radius: 50%; border: 1px solid var(--line); }
 .picker__dot:hover { transform: translateY(-3px) scale(1.06); }
-.picker__dot.is-on { border-color: var(--ink); }
-.picker__dot:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
+.picker__dot.is-on, .picker__dot[aria-pressed="true"] { border-color: var(--ink); }
+.picker__dot:focus-visible { outline-offset: 2px; }
 .picker__nom {
   font-family: 'Chakra Petch', sans-serif;
   font-size: 12.5px; font-weight: 600; letter-spacing: .2em; text-transform: uppercase;
@@ -194,9 +238,26 @@ body:not(.intro-on) .picker__dot {
 }
 
 /* ---------- Bandeau défilant ---------- */
-.ticker { overflow: hidden; background: var(--ink); color: #F4F3F0; padding: 13px 0; margin-top: clamp(34px, 6vw, 62px); }
+.ticker {
+  position: relative; overflow: hidden;
+  background: var(--ink); color: #F4F3F0; padding: 13px 0; margin-top: var(--sp-m);
+}
 .ticker__track { display: flex; align-items: center; gap: 22px; width: max-content; animation: defile 26s linear infinite; }
 .ticker:hover .ticker__track { animation-play-state: paused; }
+/* Le survol ne suffisait pas : au clavier et au doigt, rien ne permettait
+   d'arrêter le défilement. Le bouton, lui, est atteignable partout. */
+.ticker.est-fige .ticker__track { animation-play-state: paused; }
+.ticker__pause {
+  position: absolute; top: 50%; right: var(--gut); transform: translateY(-50%);
+  min-width: 44px; min-height: 44px; display: inline-flex;
+  align-items: center; justify-content: center;
+  background: var(--ink); border: 1px solid rgba(244,243,240,.26); border-radius: 2px;
+  color: #F4F3F0; cursor: pointer;
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 10.5px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase;
+  padding: 0 12px; transition: border-color .2s ease, background .2s ease;
+}
+.ticker__pause:hover { border-color: #F4F3F0; background: #24242A; }
 @keyframes defile { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 .ticker span {
   font-family: 'Chakra Petch', sans-serif;
@@ -212,13 +273,13 @@ body:not(.intro-on) .picker__dot {
   display: flex; align-items: baseline; gap: 14px; transition: background .35s ease;
 }
 .strip__item:hover { background: var(--paper); }
-.strip__item span { font-family: 'Chakra Petch', sans-serif; font-weight: 600; font-size: 12px; letter-spacing: .12em; color: var(--orange); }
+.strip__item span { font-family: 'Chakra Petch', sans-serif; font-weight: 600; font-size: 12px; letter-spacing: .12em; color: var(--orange-txt); }
 .strip__item p { margin: 0; font-size: 15px; }
 
 /* ==========================================================
    Les cinq — le nom en géant, la monture posée par-dessus
    ========================================================== */
-.cinq { padding: clamp(52px, 9vw, 110px) var(--gut) clamp(20px, 4vw, 50px); overflow: hidden; }
+.cinq { padding: var(--sp-xl) var(--gut) var(--sp-m); overflow: hidden; }
 .cinq__titre {
   font-family: 'Chakra Petch', sans-serif;
   font-size: 12.5px; font-weight: 600; letter-spacing: .32em; text-transform: uppercase;
@@ -234,7 +295,7 @@ body:not(.intro-on) .picker__dot {
   position: absolute; inset: 0; margin: 0; z-index: 1;
   display: flex; align-items: center; justify-content: center;
   font-family: 'Archivo Black', 'Archivo', sans-serif;
-  font-size: clamp(52px, 17vw, 214px); line-height: .8; letter-spacing: -.035em;
+  font-size: clamp(52px, 17vw, 214px); line-height: .8; letter-spacing: var(--tracking-tight);
   text-transform: uppercase; white-space: nowrap;
   color: transparent;
   -webkit-text-stroke: 1.6px var(--ink);
@@ -249,7 +310,7 @@ body:not(.intro-on) .picker__dot {
 .teinte--inv .teinte__img { transform: translateX(12%); }
 .teinte:not(.teinte--inv) .teinte__img { transform: translateX(-12%); }
 .teinte:hover .teinte__img { transform: translateX(0) scale(1.05); }
-.teinte:hover .teinte__nom { color: var(--orange); -webkit-text-stroke-color: var(--orange); }
+.teinte:hover .teinte__nom { color: var(--orange-txt); -webkit-text-stroke-color: var(--orange-txt); }
 .teinte__num {
   position: absolute; top: 4%; z-index: 3;
   font-family: 'Chakra Petch', sans-serif;
@@ -264,7 +325,7 @@ body:not(.intro-on) .picker__dot {
 .teinte.reveal.is-in .teinte__nom { opacity: 1; }
 
 /* ---------- Appel ---------- */
-.cta { background: var(--ink); color: #F4F3F0; padding: clamp(52px, 9vw, 104px) var(--gut); text-align: center; }
+.cta { background: var(--ink); color: #F4F3F0; padding: var(--sp-xl) var(--gut); text-align: center; }
 .cta__eyebrow {
   margin: 0 0 8px;
   font-family: 'Chakra Petch', sans-serif; font-size: 12px; font-weight: 600;
@@ -272,7 +333,7 @@ body:not(.intro-on) .picker__dot {
 }
 .cta h2 {
   font-family: 'Archivo Black', 'Archivo', sans-serif;
-  font-size: clamp(30px, 7vw, 74px); letter-spacing: .02em; margin: 0 0 10px;
+  font-size: var(--type-huge); letter-spacing: var(--tracking-tight); margin: 0 0 10px;
 }
 .cta p { margin: 0 0 26px; color: #A8A9AC; }
 .cta__btn {
@@ -298,7 +359,7 @@ body:not(.intro-on) .picker__dot {
   color: var(--grey); border-top: 1px solid var(--line);
 }
 .foot a { text-decoration: none; transition: color .25s ease; }
-.foot a:hover { color: var(--orange); }
+.foot a:hover { color: var(--orange-txt); }
 
 /* Page utilitaire (commander.php) : juste une ligne simple, pas de colonnes. */
 .foot:has(> span:first-child) {
@@ -323,7 +384,7 @@ body:not(.intro-on) .picker__dot {
   margin: 0 0 3px; font-size: 10.5px; letter-spacing: .2em; color: #B9B7AF;
 }
 .foot__col a { font-size: 12.5px; letter-spacing: .1em; color: var(--ink); }
-.foot__col a:hover { color: var(--orange); }
+.foot__col a:hover { color: var(--orange-txt); }
 
 .foot__bas {
   display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap;
@@ -342,7 +403,7 @@ body:not(.intro-on) .picker__dot {
   .anim, .ln > span, .picker__dot { animation: none !important; opacity: 1 !important; transform: none !important; }
   .stage__glow, .stage__img.is-on, .ticker__track, .cta__btn::after { animation: none !important; }
   .reveal { opacity: 1; transform: none; transition: none; }
-  .teinte__img, .teinte__nom, .card img, .cta__btn, .picker__dot, .bar__logo img { transition: none; }
+  .teinte__img, .teinte__nom, .cta__btn, .picker__dot, .bar__logo img { transition: none; }
 }
 
 /* ---------- Portée : la monture sur un visage ---------- */
@@ -366,9 +427,8 @@ body:not(.intro-on) .picker__dot {
 }
 .porte__txt p { margin: 0; max-width: 34ch; color: #5B5D62; font-size: clamp(14.5px, 1.6vw, 17px); }
 
-/* ---------- AURA SALADE : noir, avec un reflet qui balaie les lettres ---------- */
+/* ---------- AURA SALADE ---------- */
 .hero { position: relative; isolation: isolate; }
-}
 
 /* ---------- M’TRIX seme en biais dans le fond blanc ---------- */
 .cinq { position: relative; overflow: hidden; }
@@ -398,7 +458,7 @@ body:not(.intro-on) .picker__dot {
 }
 
 /* ---------- Portée : l'image se recompose en tranches, en cascade ---------- */
-.defil { padding: clamp(48px, 8vw, 100px) var(--gut); }
+.defil { padding: var(--sp-xl) var(--gut); }
 .defil__tete {
   display: flex; align-items: baseline; justify-content: space-between;
   gap: 16px; width: min(560px, 100%); margin: 0 auto clamp(14px, 2.5vw, 24px);
@@ -406,7 +466,7 @@ body:not(.intro-on) .picker__dot {
 .defil__titre {
   font-family: 'Chakra Petch', sans-serif;
   font-size: 12.5px; font-weight: 600; letter-spacing: .32em; text-transform: uppercase;
-  color: var(--orange); margin: 0;
+  color: var(--orange-txt); margin: 0;
 }
 .defil__compteur {
   font-family: 'Chakra Petch', sans-serif;
@@ -474,8 +534,8 @@ body:not(.intro-on) .picker__dot {
 @media (max-width: 620px) { .bar__flash b { display: none; } }
 
 @media (prefers-reduced-motion: reduce) {
-  .roue__part.est-encours, .bar__flash i { animation: none; }
-  .prev__btn, .roue__part { transition: none; }
+  .bar__flash i { animation: none; }
+  .prev__btn { transition: none; }
 }
 
 /* ==========================================================
@@ -484,7 +544,7 @@ body:not(.intro-on) .picker__dot {
 .prev {
   position: relative; overflow: hidden;
   background: #0A0A0B; color: #F4F3F0;
-  padding: clamp(54px, 9vw, 118px) var(--gut);
+  padding: var(--sp-xl) var(--gut);
 }
 .prev::before {
   content: ''; position: absolute; inset: -20% -10% auto -10%; height: 70%;
@@ -494,7 +554,7 @@ body:not(.intro-on) .picker__dot {
 .prev__haut { position: relative; text-align: center; max-width: 760px; margin: 0 auto clamp(26px, 4vw, 52px); }
 .prev__titre {
   font-family: 'Archivo Black', 'Archivo', sans-serif;
-  font-size: clamp(44px, 12vw, 128px); line-height: .88; letter-spacing: -.045em;
+  font-size: var(--type-giant); line-height: .88; letter-spacing: var(--tracking-tight);
   text-transform: uppercase; margin: 0 0 16px;
 }
 .prev__principe {

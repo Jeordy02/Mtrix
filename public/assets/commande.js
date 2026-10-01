@@ -29,9 +29,12 @@
   }
   afficher(couleurChoisie());
 
+  /* Avant, ça écrasait .payer__sous — le texte « paiement sécurisé par
+     FedaPay » disparaîssait définitivement, et rien n'était annoncé.
+     Le message va maintenant dans sa propre zone, en role=alert. */
   function annoncer(texte) {
-    var message = document.querySelector('.payer__sous');
-    if (message) message.textContent = texte;
+    var zone = document.getElementById('payerAnnonce');
+    if (zone) zone.textContent = texte;
   }
 
   function rendreLaMain(message) {

@@ -159,6 +159,11 @@ $avance = ($commande && $suivant) ? max(0, $suivant - (int) $commande['prix']) :
 
 $titres = ['choix' => 'Réserver', 'paiement_attente' => 'Paiement en cours', 'attente' => 'Vérification',
            'expire' => 'Temps écoulé', 'livraison' => 'Ta place', 'merci' => 'Ta place'];
+
+/* Le nom lisible de chaque champ : le résumé d'erreurs en a besoin pour
+   dire à quoi se rapporte chaque ligne. */
+$libelles = ['nom' => 'Ton nom', 'tel' => 'WhatsApp', 'email' => 'Email',
+             'lieu' => 'Quartier et repère', 'note' => 'Un mot'];
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -192,7 +197,6 @@ $titres = ['choix' => 'Réserver', 'paiement_attente' => 'Paiement en cours', 'a
   <main class="res">
     <!-- La paire, en grand, à gauche -->
     <div class="res__vue">
-      <span class="res__fond" aria-hidden="true"><?= $actif ? number_format($actif['prix'], 0, ',', ' ') : '—' ?></span>
       <?php foreach ($couleurs as $c): ?>
         <img class="res__photo<?= $choisie === $c['id'] ? ' est-vue' : '' ?>"
              data-pour="<?= h($c['id']) ?>"
@@ -272,8 +276,14 @@ $titres = ['choix' => 'Réserver', 'paiement_attente' => 'Paiement en cours', 'a
             Paiement s&eacute;curis&eacute; par FedaPay. Tu seras redirig&eacute; vers leur page de paiement.
           </p>
 
-          <!-- File d'attente : cachée tant que personne ne patiente, JS s'en charge -->
-          <div id="zoneAttente" class="file" hidden>
+          <!-- Ce que le JS écrit quand le paiement ne part pas. Séparé du
+               texte rassurant juste au-dessus, qu'il écrasait avant. -->
+          <p class="payer__annonce" id="payerAnnonce" role="alert"></p>
+
+          <!-- File d'attente : cachée tant que personne ne patiente, JS s'en charge.
+               role=status + aria-atomic : la position est relue en entier à
+               chaque changement, et non comme un nombre nu toutes les 4 s. -->
+          <div id="zoneAttente" class="file" hidden role="status" aria-atomic="true">
             <span class="file__pastille" aria-hidden="true"></span>
             <p data-attente-texte>Patiente un instant&hellip;</p>
           </div>
@@ -407,6 +417,20 @@ $titres = ['choix' => 'Réserver', 'paiement_attente' => 'Paiement en cours', 'a
       <h2>Il reste une chose</h2>
       <p class="livr__form-sous">Où et comment on te livre ? Ta place <b><?= h($commande['ref']) ?></b> est d'ores et déjà bloquée — personne ne peut plus te la prendre.</p>
 
+      <?php /* Le résumé d'erreurs : il prend le focus au retour d'un envoi
+               raté et chaque ligne mène droit au champ fautif. Les messages
+               en ligne restent sous chaque champ, ils ne le remplacent pas. */ ?>
+      <?php if ($erreurs): ?>
+        <div class="livr__resume" role="alert" tabindex="-1" id="resumeErreurs" autofocus>
+          <h2>Il y a <?= count($erreurs) > 1 ? 'des choses' : 'une chose' ?> à corriger</h2>
+          <ul>
+            <?php foreach ($erreurs as $champ => $message): ?>
+              <li><a href="#champ-<?= h($champ) ?>"><?= h($libelles[$champ] ?? $champ) ?> &mdash; <?= h($message) ?></a></li>
+            <?php endforeach; ?>
+          </ul>
+        </div>
+      <?php endif; ?>
+
       <form method="post" class="livr__form" novalidate>
         <input type="hidden" name="action" value="livraison">
         <input type="hidden" name="ref" value="<?= h($commande['ref']) ?>">
@@ -414,32 +438,41 @@ $titres = ['choix' => 'Réserver', 'paiement_attente' => 'Paiement en cours', 'a
         <div class="livr__grid">
           <label class="livr__champ">
             <span class="livr__label">Ton nom</span>
-            <input type="text" name="nom" value="<?= h($_POST['nom'] ?? $commande['nom']) ?>" autocomplete="name" autofocus required>
-            <?php if (!empty($erreurs['nom'])): ?><span class="livr__err"><?= h($erreurs['nom']) ?></span><?php endif; ?>
+            <input type="text" id="champ-nom" name="nom" value="<?= h($_POST['nom'] ?? $commande['nom']) ?>"
+                   autocomplete="name" required<?= $erreurs ? '' : ' autofocus' ?>
+                   <?= !empty($erreurs['nom']) ? 'aria-invalid="true" aria-describedby="err-nom"' : '' ?>>
+            <?php if (!empty($erreurs['nom'])): ?><span class="livr__err" id="err-nom"><?= h($erreurs['nom']) ?></span><?php endif; ?>
           </label>
           <label class="livr__champ">
             <span class="livr__label">WhatsApp</span>
-            <input type="tel" name="tel" value="<?= h($_POST['tel'] ?? $commande['tel']) ?>" placeholder="01 46 02 56 58" autocomplete="tel" required>
-            <?php if (!empty($erreurs['tel'])): ?><span class="livr__err"><?= h($erreurs['tel']) ?></span><?php endif; ?>
+            <input type="tel" id="champ-tel" name="tel" value="<?= h($_POST['tel'] ?? $commande['tel']) ?>"
+                   placeholder="01 46 02 56 58" autocomplete="tel" required
+                   <?= !empty($erreurs['tel']) ? 'aria-invalid="true" aria-describedby="err-tel"' : '' ?>>
+            <?php if (!empty($erreurs['tel'])): ?><span class="livr__err" id="err-tel"><?= h($erreurs['tel']) ?></span><?php endif; ?>
           </label>
         </div>
 
         <label class="livr__champ livr__champ--full">
-          <span class="livr__label">Email <small>— ta confirmation part dessus</small></span>
-          <input type="email" name="email" value="<?= h($_POST['email'] ?? $commande['email']) ?>" autocomplete="email" required>
-          <?php if (!empty($erreurs['email'])): ?><span class="livr__err"><?= h($erreurs['email']) ?></span><?php endif; ?>
+          <span class="livr__label">Email <small>&mdash; ta confirmation part dessus</small></span>
+          <input type="email" id="champ-email" name="email" value="<?= h($_POST['email'] ?? $commande['email']) ?>"
+                 autocomplete="email" required
+                 <?= !empty($erreurs['email']) ? 'aria-invalid="true" aria-describedby="err-email"' : '' ?>>
+          <?php if (!empty($erreurs['email'])): ?><span class="livr__err" id="err-email"><?= h($erreurs['email']) ?></span><?php endif; ?>
         </label>
 
         <label class="livr__champ livr__champ--full">
           <span class="livr__label">Quartier et repère</span>
-          <input type="text" name="lieu" value="<?= h($_POST['lieu'] ?? $commande['lieu']) ?>" placeholder="Fidjrosse, en face de la pharmacie" required>
-          <?php if (!empty($erreurs['lieu'])): ?><span class="livr__err"><?= h($erreurs['lieu']) ?></span><?php endif; ?>
+          <input type="text" id="champ-lieu" name="lieu" value="<?= h($_POST['lieu'] ?? $commande['lieu']) ?>"
+                 placeholder="Fidjrosse, en face de la pharmacie" required
+                 <?= !empty($erreurs['lieu']) ? 'aria-invalid="true" aria-describedby="err-lieu"' : '' ?>>
+          <?php if (!empty($erreurs['lieu'])): ?><span class="livr__err" id="err-lieu"><?= h($erreurs['lieu']) ?></span><?php endif; ?>
         </label>
 
         <label class="livr__champ livr__champ--full">
-          <span class="livr__label">Un mot <small>— facultatif</small></span>
-          <textarea name="note" rows="2" placeholder="Ex. vendredi après 14h, ou samedi matin"><?= h($_POST['note'] ?? $commande['note']) ?></textarea>
-          <?php if (!empty($erreurs['note'])): ?><span class="livr__err"><?= h($erreurs['note']) ?></span><?php endif; ?>
+          <span class="livr__label">Un mot <small>&mdash; facultatif</small></span>
+          <textarea id="champ-note" name="note" rows="2" placeholder="Ex. vendredi après 14h, ou samedi matin"
+                    <?= !empty($erreurs['note']) ? 'aria-invalid="true" aria-describedby="err-note"' : '' ?>><?= h($_POST['note'] ?? $commande['note']) ?></textarea>
+          <?php if (!empty($erreurs['note'])): ?><span class="livr__err" id="err-note"><?= h($erreurs['note']) ?></span><?php endif; ?>
         </label>
 
         <button class="livr__btn" type="submit">Terminer la commande</button>

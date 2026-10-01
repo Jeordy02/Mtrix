@@ -77,7 +77,8 @@ foreach (mtx_paliers_def() as $p) if ((int) $p['n'] === $debloque + 1) { $procha
     --fond:   #F1EFEA;
     --smoke:  #F6F4F0;
     --grey:   #75767C;
-    --grey-d: #9C9A93;
+    --grey-d: #78766E;   /* était #9C9A93 : 2,8:1 sur blanc, illisible pour
+                            des libellés de 10,5px. Celui-ci tient 4,6:1. */
     --line:   #E7E4DC;
     --orange: #E8822B;
     --vert:   #1E7A3C; --vert-bg:#E7F5EC; --vert-l:#CDE9D6;
@@ -88,6 +89,20 @@ foreach (mtx_paliers_def() as $p) if ((int) $p['n'] === $debloque + 1) { $procha
   }
   * { box-sizing: border-box; }
   html { scrollbar-gutter: stable; }
+
+  /* Rien n'avait d'anneau de focus : le panneau était inutilisable au
+     clavier. Une règle, tous les contrôles. */
+  :where(a, button, input, select, textarea, summary):focus-visible {
+    outline: 2px solid var(--orange);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  .barre-haut :where(a, button):focus-visible { outline-color: var(--orange); }
+
+  .visuellement-cache {
+    position: absolute; width: 1px; height: 1px; overflow: hidden;
+    clip-path: inset(50%); white-space: nowrap;
+  }
   body {
     margin: 0; background: var(--fond); color: var(--ink);
     font-family: 'Archivo', system-ui, sans-serif; font-size: 15px; line-height: 1.5;
@@ -169,7 +184,12 @@ foreach (mtx_paliers_def() as $p) if ((int) $p['n'] === $debloque + 1) { $procha
   .btn-ghost-danger { color: var(--rouge); border-color: var(--rouge-l); background: var(--paper); }
   .btn-ghost-danger:hover { background: var(--rouge-bg); }
   .btn-sm { padding: 7px 12px; font-size: 11px; border-radius: 7px; }
-  .btn-icone { padding: 7px 10px; }
+  /* La croix faisait 28x30 : trop petit pour un doigt, et c'est l'action
+     irréversible de la page. Elle passe à la taille recommandée. */
+  .btn-icone {
+    padding: 0; min-width: 44px; min-height: 44px;
+    justify-content: center; font-size: 13px;
+  }
   .full { width: 100%; justify-content: center; }
   form.inline { display: inline-block; }
   .rang-btn { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
@@ -203,6 +223,15 @@ foreach (mtx_paliers_def() as $p) if ((int) $p['n'] === $debloque + 1) { $procha
     letter-spacing: .14em; text-transform: uppercase; color: var(--grey-d);
   }
   .kpi__point { width: 7px; height: 7px; border-radius: 50%; background: var(--line); flex: 0 0 auto; }
+  /* Le point seul disait « urgent » ou « ça va » : une information portée
+     par la couleur uniquement. On lui ajoute un mot. */
+  .kpi__etat {
+    font-family: 'Chakra Petch', sans-serif; font-size: 9.5px; font-weight: 700;
+    letter-spacing: .12em; text-transform: uppercase; color: var(--grey-d);
+  }
+  .kpi--urgent .kpi__etat { color: var(--rouge); }
+  .kpi--chaud  .kpi__etat { color: var(--ambre); }
+  .kpi--bien   .kpi__etat { color: var(--vert); }
   .kpi b { font-family: 'Archivo Black', sans-serif; font-size: 27px; letter-spacing: -.02em; line-height: 1; }
   .kpi__barre { height: 4px; border-radius: 99px; background: var(--line); overflow: hidden; margin-top: auto; }
   .kpi__barre i { display: block; height: 100%; background: var(--ink); border-radius: 99px; transition: width .5s cubic-bezier(.16,1,.3,1); }
@@ -400,10 +429,12 @@ foreach (mtx_paliers_def() as $p) if ((int) $p['n'] === $debloque + 1) { $procha
       <div class="carte kpi<?= $verifier ? ' kpi--urgent' : '' ?>">
         <div class="kpi__haut"><span class="kpi__label">À vérifier</span><i class="kpi__point"></i></div>
         <b><?= count($verifier) ?></b>
+        <span class="kpi__etat"><?= $verifier ? 'à traiter' : 'rien en attente' ?></span>
       </div>
       <div class="carte kpi<?= $relancer ? ' kpi--chaud' : '' ?>">
         <div class="kpi__haut"><span class="kpi__label">À relancer</span><i class="kpi__point"></i></div>
         <b><?= count($relancer) ?></b>
+        <span class="kpi__etat"><?= $relancer ? 'à relancer' : 'rien en attente' ?></span>
       </div>
       <div class="carte kpi">
         <div class="kpi__haut"><span class="kpi__label">Encaissé</span><i class="kpi__point"></i></div>
@@ -571,7 +602,10 @@ foreach (mtx_paliers_def() as $p) if ((int) $p['n'] === $debloque + 1) { $procha
                   <form method="post" class="inline" onsubmit="return confirm('Supprimer définitivement <?= h($c['ref']) ?> ?')">
                     <input type="hidden" name="action" value="supprimer">
                     <input type="hidden" name="ref" value="<?= h($c['ref']) ?>">
-                    <button class="btn-ghost-danger btn-sm btn-icone" type="submit" title="Supprimer">✕</button></form>
+                    <button class="btn-ghost-danger btn-icone" type="submit">
+                      <span aria-hidden="true">✕</span>
+                      <span class="visuellement-cache">Supprimer la commande <?= h($c['ref']) ?></span>
+                    </button></form>
                 </div>
               </td>
             </tr>

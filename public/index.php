@@ -21,9 +21,9 @@ $couleurs = mtx_couleurs();
 <div class="intro" id="intro">
   <span class="intro__panneau intro__panneau--h" aria-hidden="true"></span>
   <span class="intro__panneau intro__panneau--b" aria-hidden="true"></span>
-  <div class="intro__coeur">
-    <h1 class="intro__mot" id="introMot" aria-label="M&rsquo;trix"></h1>
-    <span class="intro__trait" aria-hidden="true"></span>
+  <div class="intro__coeur" aria-hidden="true">
+    <p class="intro__mot" id="introMot"></p>
+    <span class="intro__trait"></span>
   </div>
   <button type="button" class="intro__skip" id="introSkip">Passer</button>
 </div>
@@ -58,17 +58,18 @@ $couleurs = mtx_couleurs();
       <?php endforeach; ?>
     </div>
 
-    <div class="picker anim anim--6" id="picker" role="tablist" aria-label="Coloris">
+    <div class="picker anim anim--6" id="picker" role="group" aria-label="Choisir un coloris">
       <?php foreach ($couleurs as $i => $c): ?>
         <button type="button" class="picker__dot<?= $i === 0 ? ' is-on' : '' ?>"
-                role="tab" aria-selected="<?= $i === 0 ? 'true' : 'false' ?>"
-                data-cible="<?= h($c['id']) ?>" title="<?= h($c['nom']) ?>"
+                aria-pressed="<?= $i === 0 ? 'true' : 'false' ?>"
+                data-cible="<?= h($c['id']) ?>" data-nom="<?= h($c['nom']) ?>"
                 style="--d:<?= $i * 70 ?>ms">
-          <span style="background:<?= h($c['puce']) ?>"></span>
+          <span style="background:<?= h($c['puce']) ?>" aria-hidden="true"></span>
+          <span class="visuellement-cache"><?= h($c['nom']) ?></span>
         </button>
       <?php endforeach; ?>
     </div>
-    <p class="picker__nom anim anim--7" id="pickerNom"><?= h($couleurs[0]['nom']) ?></p>
+    <p class="picker__nom anim anim--7" id="pickerNom" role="status"><?= h($couleurs[0]['nom']) ?></p>
   </section>
 
   <!-- Preventeial : le cadran -->
@@ -114,12 +115,15 @@ $couleurs = mtx_couleurs();
   </section>
 
   <!-- Bandeau défilant -->
-  <div class="ticker" aria-hidden="true">
-    <div class="ticker__track">
+  <div class="ticker" id="ticker">
+    <div class="ticker__track" aria-hidden="true">
       <?php for ($i = 0; $i < 2; $i++): ?>
         <span>01 / 11 / 26</span><i>&#10022;</i><span>Cinq coloris</span><i>&#10022;</i><span>Format masque</span><i>&#10022;</i><span>M&rsquo;trix</span><i>&#10022;</i>
       <?php endfor; ?>
     </div>
+    <button type="button" class="ticker__pause" id="tickerPause" aria-pressed="false">
+      <span data-pause-txt>Figer</span>
+    </button>
   </div>
 
   <section class="strip">
